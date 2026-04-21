@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026년 3월 모의고사 — 1학년 1반 성적 대시보드</title>
+<style>
+:root {
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #f5f7fa;
+  --color-background-info: #EBF4FF;
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #6b7280;
+  --color-text-tertiary: #9ca3af;
+  --color-border-secondary: #e5e7eb;
+  --color-border-tertiary: #f3f4f6;
+  --border-radius-lg: 10px;
+  --border-radius-md: 6px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
+  background: #f0f2f5;
+  color: var(--color-text-primary);
+  margin: 0;
+  padding: 16px;
+}
+
+.page-wrap {
+  max-width: 900px;
+  margin: 0 auto;
+  background: var(--color-background-primary);
+  border-radius: 14px;
+  padding: 16px 20px 24px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:.85rem 1rem}
+.sec-title{font-size:10px;font-weight:500;color:var(--color-text-secondary);letter-spacing:.05em;text-transform:uppercase;margin:0 0 8px}
+.metric{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.55rem .75rem;min-width:0}
+.ml{font-size:10px;color:var(--color-text-secondary);margin:0 0 1px}
+.mv{font-size:17px;font-weight:500;color:var(--color-text-primary);margin:0;line-height:1.2}
+.ms{font-size:10px;color:var(--color-text-tertiary);margin:1px 0 0}
+.gb{display:inline-block;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:500}
+.tbl{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed}
+.tbl th{font-size:10px;color:var(--color-text-secondary);font-weight:500;padding:3px 4px;border-bottom:0.5px solid var(--color-border-tertiary);text-align:center;white-space:nowrap}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl td{padding:4px 4px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--color-background-secondary)}
+.bar-bg{background:var(--color-background-secondary);border-radius:3px;height:5px;overflow:hidden;margin-top:2px}
+.bar-fill{height:5px;border-radius:3px}
+select{font-size:12px;padding:3px 7px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary)}
+.stab{background:none;border:none;padding:4px 10px;font-size:11px;cursor:pointer;color:var(--color-text-secondary);border-bottom:2px solid transparent;white-space:nowrap}
+.stab.active{color:var(--color-text-primary);border-bottom:2px solid #378ADD;font-weight:500}
+.qcell{width:28px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;position:relative;cursor:default;transition:transform .1s}
+.qcell:hover{transform:scale(1.15);z-index:2}
+.qcell.correct{background:#E1F5EE;color:#0F6E56;border:0.5px solid #9FE1CB}
+.qcell.wrong{background:#FCEBEB;color:#A32D2D;border:0.5px solid #F09595}
+.qcell.wrong::after{content:'';position:absolute;top:3px;right:3px;width:5px;height:5px;border-radius:50%;background:#E24B4A}
+.dom-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px 10px;position:relative;overflow:hidden}
+.dom-bar{position:absolute;left:0;top:0;bottom:0;opacity:.15}
+.dom-content{position:relative;z-index:1}
+.legend-row{display:flex;gap:12px;align-items:center;font-size:10px;color:var(--color-text-secondary);flex-wrap:wrap}
+.legend-chip{display:inline-flex;align-items:center;gap:4px}
+.legend-sq{width:11px;height:11px;border-radius:3px}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<h2 class="sr-only">2026년 3월 모의고사 1학년 1반 통합 성적 대시보드 — 시각화 강화된 오답 분석</h2>
+
+<div style="padding:.4rem 0 1rem">
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px">
+  <div>
+    <span style="font-size:14px;font-weight:500;color:var(--color-text-primary)">2026년 3월 모의고사</span>
+    <span style="font-size:11px;color:var(--color-text-secondary);margin-left:7px">1학년 1반 · 28명</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:7px">
+    <span style="font-size:11px;color:var(--color-text-secondary)">학생 선택</span>
+    <select id="ssel" onchange="renderAll()"><option value="all">전체 보기</option></select>
+  </div>
+</div>
+
+<div id="info-bar" style="display:none;background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:.55rem .9rem;margin-bottom:10px">
+  <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+    <span style="font-size:11px;color:var(--color-text-secondary)">이름 <b id="ib-name" style="color:var(--color-text-primary)"></b></span>
+    <span style="font-size:11px;color:var(--color-text-secondary)">학번 <b id="ib-id" style="color:var(--color-text-primary)"></b></span>
+    <span style="font-size:11px;color:var(--color-text-secondary)">출신 <b id="ib-sch" style="color:var(--color-text-primary)"></b></span>
+    <span style="font-size:11px;color:var(--color-text-secondary)">중학내신 <b id="ib-ns" style="color:var(--color-text-primary)"></b></span>
+  </div>
+</div>
+
+<div id="metrics" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:7px;margin-bottom:10px"></div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:9px">
+  <div class="card">
+    <p class="sec-title">과목별 분석</p>
+    <div style="position:relative;height:180px"><canvas id="cSubj" role="img" aria-label="과목별 점수 차트">과목별 점수</canvas></div>
+    <div id="subj-detail" style="margin-top:7px"></div>
+  </div>
+  <div class="card">
+    <p class="sec-title">석차 및 백분위</p>
+    <div id="rank-body"></div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:9px">
+  <div class="card">
+    <p class="sec-title">취약 과목</p>
+    <div id="weak-body"></div>
+  </div>
+  <div class="card">
+    <p class="sec-title">등급 분포</p>
+    <div style="position:relative;height:180px"><canvas id="cDist" role="img" aria-label="과목별 등급 분포 차트">등급 분포</canvas></div>
+    <div id="dist-legend" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px"></div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:9px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <p class="sec-title" style="margin:0">전체 명단 <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--color-text-tertiary)">국영수 3합 등급 기준 · Top 20</span></p>
+    <span style="font-size:10px;color:var(--color-text-tertiary)">숫자가 작을수록 우수</span>
+  </div>
+  <div style="overflow-x:auto" id="list-body"></div>
+</div>
+
+<div class="card">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px">
+    <p class="sec-title" style="margin:0">오답 분석 카드</p>
+    <div style="display:flex;gap:0;border-bottom:0.5px solid var(--color-border-tertiary)">
+      <button class="stab active" onclick="switchSubj('korean',this)">국어</button>
+      <button class="stab" onclick="switchSubj('math',this)">수학</button>
+      <button class="stab" onclick="switchSubj('english',this)">영어</button>
+    </div>
+  </div>
+  <div id="odap-body"></div>
+</div>
+
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const RAW=[{n:1,name:"강보라",k:62,kg:4,m:52,mg:4,e:57,eg:5,h:44,hg:1,s:43,sg:2,sc:26,scg:4,school:"구미신평",ns:267.421,t3:13},{n:2,name:"김가빈",k:84,kg:2,m:33,mg:6,e:58,eg:5,h:50,hg:1,s:43,sg:2,sc:31,scg:4,school:"해마루중",ns:234.171,t3:13},{n:3,name:"김가은",k:85,kg:2,m:78,mg:2,e:89,eg:2,h:39,hg:2,s:42,sg:3,sc:45,scg:1,school:"옥계동부",ns:295.929,t3:6},{n:4,name:"김단아",k:65,kg:4,m:51,mg:4,e:72,eg:3,h:30,hg:3,s:32,sg:5,sc:23,scg:5,school:"옥계동부",ns:260.837,t3:11},{n:5,name:"김민정",k:62,kg:4,m:32,mg:6,e:75,eg:3,h:42,hg:1,s:42,sg:3,sc:39,scg:2,school:"옥계동부",ns:244.081,t3:13},{n:6,name:"김승희",k:82,kg:2,m:69,mg:3,e:63,eg:4,h:35,hg:2,s:42,sg:3,sc:42,scg:2,school:"인동중학",ns:295.842,t3:9},{n:7,name:"김채원",k:76,kg:3,m:42,mg:5,e:68,eg:4,h:33,hg:3,s:30,sg:5,sc:31,scg:4,school:"천생중학",ns:261.88,t3:12},{n:8,name:"박시연",k:95,kg:1,m:57,mg:4,e:94,eg:1,h:47,hg:1,s:43,sg:2,sc:41,scg:2,school:"옥계동부",ns:279.647,t3:6},{n:9,name:"박시은",k:86,kg:1,m:70,mg:3,e:86,eg:2,h:43,hg:1,s:45,sg:2,sc:41,scg:2,school:"옥계동부",ns:267.4,t3:6},{n:10,name:"박채은",k:80,kg:2,m:66,mg:3,e:85,eg:2,h:34,hg:3,s:33,sg:4,sc:18,scg:6,school:"옥계동부",ns:271.067,t3:7},{n:11,name:"백주아",k:50,kg:5,m:26,mg:7,e:48,eg:6,h:30,hg:3,s:29,sg:5,sc:22,scg:5,school:"진평중학",ns:214.0,t3:18},{n:12,name:"성은우",k:66,kg:4,m:59,mg:4,e:56,eg:5,h:30,hg:3,s:35,sg:4,sc:31,scg:4,school:"옥계동부",ns:273.576,t3:13},{n:13,name:"신제인",k:84,kg:2,m:70,mg:3,e:83,eg:2,h:50,hg:1,s:36,sg:4,sc:28,scg:4,school:"구미인덕",ns:286.6,t3:7},{n:14,name:"안수지",k:86,kg:1,m:70,mg:3,e:65,eg:4,h:43,hg:1,s:44,sg:2,sc:32,scg:3,school:"인동중학",ns:298.737,t3:8},{n:15,name:"안재희",k:63,kg:4,m:65,mg:3,e:67,eg:4,h:37,hg:2,s:42,sg:3,sc:42,scg:2,school:"송정여자",ns:280.393,t3:11},{n:16,name:"윤다해",k:68,kg:4,m:32,mg:6,e:63,eg:4,h:38,hg:2,s:33,sg:4,sc:19,scg:5,school:"오상중학",ns:291.273,t3:14},{n:17,name:"윤채빈",k:58,kg:5,m:37,mg:6,e:69,eg:4,h:22,hg:5,s:36,sg:4,sc:22,scg:5,school:"구미인덕",ns:243.2,t3:15},{n:18,name:"이남경",k:46,kg:6,m:37,mg:6,e:49,eg:6,h:26,hg:4,s:31,sg:5,sc:24,scg:5,school:"오상중학",ns:286.909,t3:18},{n:19,name:"이다은",k:67,kg:4,m:43,mg:5,e:57,eg:5,h:39,hg:2,s:26,sg:5,sc:16,scg:6,school:"옥계중학",ns:234.065,t3:14},{n:20,name:"이선우",k:49,kg:5,m:42,mg:5,e:46,eg:6,h:22,hg:5,s:33,sg:4,sc:18,scg:6,school:"구미인덕",ns:202.0,t3:16},{n:21,name:"이승현",k:27,kg:8,m:12,mg:9,e:47,eg:6,h:31,hg:3,s:24,sg:6,sc:23,scg:5,school:"오상중학",ns:206.727,t3:23},{n:22,name:"임지민",k:49,kg:5,m:49,mg:5,e:73,eg:3,h:31,hg:3,s:41,sg:3,sc:30,scg:4,school:"인동중학",ns:273.263,t3:13},{n:23,name:"장정윤",k:78,kg:3,m:49,mg:5,e:75,eg:3,h:35,hg:2,s:28,sg:5,sc:25,scg:5,school:"구미인덕",ns:250.2,t3:11},{n:24,name:"최예은",k:79,kg:2,m:62,mg:3,e:76,eg:3,h:30,hg:3,s:37,sg:4,sc:29,scg:4,school:"오상중학",ns:291.636,t3:8},{n:25,name:"최예진",k:66,kg:4,m:58,mg:4,e:62,eg:4,h:27,hg:4,s:39,sg:3,sc:33,scg:3,school:"옥계동부",ns:252.24,t3:12},{n:26,name:"최은경",k:52,kg:5,m:18,mg:8,e:37,eg:7,h:19,hg:6,s:23,sg:6,sc:19,scg:5,school:"천생중학",ns:206.94,t3:20},{n:27,name:"한예린",k:37,kg:7,m:32,mg:6,e:52,eg:5,h:21,hg:5,s:21,sg:6,sc:14,scg:6,school:"진평중학",ns:202.2,t3:18},{n:28,name:"현지은",k:55,kg:5,m:40,mg:5,e:48,eg:6,h:35,hg:2,s:28,sg:5,sc:13,scg:7,school:"옥계중학",ns:213.827,t3:16}];
+
+const SK=[['k','kg'],['m','mg'],['e','eg'],['h','hg'],['s','sg'],['sc','scg']];
+const SN=['국어','수학','영어','한국사','사회','과학'];
+const SCOL=['#378ADD','#1D9E75','#BA7517','#D85A30','#7F77DD','#D4537E'];
+const GC={1:'#185FA5',2:'#1D9E75',3:'#639922',4:'#BA7517',5:'#D85A30',6:'#A32D2D',7:'#791F1F',8:'#501313',9:'#888780'};
+const GB={1:'#E6F1FB',2:'#E1F5EE',3:'#EAF3DE',4:'#FAEEDA',5:'#FAECE7',6:'#FCEBEB',7:'#FCEBEB',8:'#FCEBEB',9:'#F1EFE8'};
+
+const KD=[{name:'화법',items:[1,2,3],cat:'화법과작문'},{name:'작문',items:[8,9,10],cat:'화법과작문'},{name:'융합(화+작)',items:[4,5,6,7],cat:'화법과작문'},{name:'문법',items:[11,12,13,14,15],cat:'문법'},{name:'독서-인문',items:[16,17,18,19,20,21],cat:'독서'},{name:'독서-사회',items:[34,35,36,37,38],cat:'독서'},{name:'독서-과학',items:[30,31,32,33],cat:'독서'},{name:'문학-현대시',items:[26,27,28,29],cat:'문학'},{name:'문학-현대소설',items:[22,23,24,25],cat:'문학'},{name:'문학-고전소설',items:[43,44,45],cat:'문학'},{name:'문학-갈래복합',items:[39,40,41,42],cat:'문학'}];
+const MD=[{name:'수와연산',items:[1,23,25,26],cat:'수/대'},{name:'문자와식',items:[3,6,7,9,15,22],cat:'수/대'},{name:'함수',items:[2,16,19,20,29],cat:'함수'},{name:'기하',items:[4,8,11,12,13,14,17,18,21,27,28,30],cat:'기하'},{name:'확률/통계',items:[5,10,24],cat:'확통'}];
+const ED=[{name:'듣기',items:Array.from({length:17},(_,i)=>i+1),cat:'듣기'},{name:'목적/주장/요지',items:[18,20,21,22],cat:'대의파악'},{name:'심경/분위기',items:[19],cat:'대의파악'},{name:'주제/제목',items:[23,24],cat:'대의파악'},{name:'세부내용/도표',items:[25,26,27,28],cat:'독해'},{name:'어휘/어법',items:[29,30],cat:'독해'},{name:'빈칸추론',items:[31,32,33,34],cat:'독해'},{name:'흐름/순서',items:[35,36,37],cat:'고난도'},{name:'문장위치/요약',items:[38,39,40],cat:'고난도'},{name:'장문독해',items:[41,42,43,44,45],cat:'고난도'}];
+
+const tot=r=>SK.reduce((a,[k])=>a+(r[k]||0),0);
+const clsAvg=key=>parseFloat((RAW.reduce((a,r)=>a+r[key],0)/RAW.length).toFixed(1));
+const avgs=SK.map(([k])=>clsAvg(k));
+
+const sel=document.getElementById('ssel');
+RAW.forEach(r=>{const o=document.createElement('option');o.value=r.name;o.textContent=`${r.n}번 ${r.name}`;sel.appendChild(o);});
+
+let ch={},curSubj='korean';
+function dc(id){if(ch[id]){ch[id].destroy();delete ch[id];}}
+
+function wrongNums(score,total,seed){
+  const wc=Math.round((100-score)/100*total);
+  const idxs=[];let i=(seed*31+7)%total;
+  for(let c=0;c<wc;c++){i=(i*7+11)%total;while(idxs.includes(i))i=(i+3)%total;idxs.push(i);}
+  return idxs.map(x=>x+1).sort((a,b)=>a-b);
+}
+
+function switchSubj(s,btn){
+  curSubj=s;
+  document.querySelectorAll('.stab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderOdap(document.getElementById('ssel').value);
+}
+
+function renderAll(){
+  const who=document.getElementById('ssel').value;
+  const s=who==='all'?null:RAW.find(r=>r.name===who);
+  renderInfo(who,s);renderMetrics(who,s);renderSubj(who,s);renderRank(who,s);renderWeak(who,s);renderDist();renderList(who);renderOdap(who);
+}
+
+function renderInfo(who,s){
+  const bar=document.getElementById('info-bar');
+  if(!s){bar.style.display='none';return;}
+  bar.style.display='block';
+  document.getElementById('ib-name').textContent=s.name;document.getElementById('ib-id').textContent=`1학년 1반 ${s.n}번`;document.getElementById('ib-sch').textContent=s.school;document.getElementById('ib-ns').textContent=s.ns;
+}
+
+function renderMetrics(who,s){
+  const el=document.getElementById('metrics');
+  if(!s){
+    const tots=RAW.map(tot);const mx=Math.max(...tots),mn=Math.min(...tots),av=Math.round(tots.reduce((a,b)=>a+b)/tots.length);
+    el.innerHTML=`<div class="metric"><p class="ml">학생 수</p><p class="mv">28명</p></div>
+    <div class="metric"><p class="ml">평균 총점</p><p class="mv">${av}</p></div>
+    <div class="metric"><p class="ml">최고 총점</p><p class="mv">${mx}</p><p class="ms">${RAW.find(r=>tot(r)===mx).name}</p></div>
+    <div class="metric"><p class="ml">국영수 최우수</p><p class="mv">${Math.min(...RAW.map(r=>r.t3))}</p><p class="ms">3합 최소값</p></div>`;
+  } else {
+    const t=tot(s),rank=[...RAW].sort((a,b)=>tot(b)-tot(a)).findIndex(r=>r.name===s.name)+1;
+    const t3rank=[...RAW].sort((a,b)=>a.t3-b.t3).findIndex(r=>r.name===s.name)+1;
+    const pct=parseFloat((rank/28*100).toFixed(1));
+    el.innerHTML=`<div class="metric"><p class="ml">총점</p><p class="mv">${t}</p><p class="ms">6과목 합</p></div>
+    <div class="metric"><p class="ml">석차</p><p class="mv">${rank}위</p><p class="ms">/ 28명</p></div>
+    <div class="metric"><p class="ml">상위</p><p class="mv">${parseFloat((100-pct+0.1).toFixed(1))}%</p></div>
+    <div class="metric"><p class="ml">국영수 3합</p><p class="mv">${s.t3}</p><p class="ms">3합 ${t3rank}위</p></div>
+    <div class="metric"><p class="ml">중학내신</p><p class="mv">${s.ns}</p></div>`;
+  }
+}
+
+function renderSubj(who,s){
+  dc('subj');
+  const scores=s?SK.map(([k])=>s[k]):avgs;
+  if(!s){
+    ch['subj']=new Chart(document.getElementById('cSubj'),{type:'bar',data:{labels:SN,datasets:[{label:'학급 평균',data:scores,backgroundColor:SCOL.map(c=>c+'44'),borderColor:SCOL,borderWidth:1.5,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,grid:{color:'rgba(128,128,128,0.08)'},ticks:{font:{size:9}}},x:{grid:{display:false},ticks:{font:{size:10}}}}}});
+    const gl=SK.map(([k,gk],i)=>{const cnt=new Array(9).fill(0);RAW.forEach(r=>{const g=r[gk];if(g>=1&&g<=9)cnt[g-1]++;});return`<div style="font-size:10px;color:var(--color-text-secondary);margin-bottom:2px">${SN[i]}: ${cnt.map((c,gi)=>c?`<span class="gb" style="background:${GB[gi+1]};color:${GC[gi+1]}">${gi+1}(${c})</span>`:'').join(' ')}</div>`;}).join('');
+    document.getElementById('subj-detail').innerHTML=gl;
+  } else {
+    ch['subj']=new Chart(document.getElementById('cSubj'),{type:'radar',data:{labels:SN,datasets:[{label:s.name,data:SK.map(([k])=>s[k]),borderColor:'#378ADD',backgroundColor:'#378ADD22',borderWidth:2,pointRadius:3},{label:'학급평균',data:avgs,borderColor:'#888780',backgroundColor:'rgba(0,0,0,0)',borderWidth:1.5,borderDash:[4,3],pointRadius:2}]},options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:100,ticks:{stepSize:25,font:{size:9}},grid:{color:'rgba(128,128,128,0.12)'}}},plugins:{legend:{display:false}}}});
+    document.getElementById('subj-detail').innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:4px">${SK.map(([k,gk],i)=>{const g=s[gk];return`<span style="font-size:10px;background:var(--color-background-secondary);padding:2px 5px;border-radius:3px">${SN[i]}: <b>${s[k]}</b> <span class="gb" style="background:${GB[g]};color:${GC[g]}">${g}등</span><span style="color:${s[k]-avgs[i]>=0?'#1D9E75':'#D85A30'};margin-left:2px">${s[k]-avgs[i]>=0?'+':''}${parseFloat((s[k]-avgs[i]).toFixed(1))}</span></span>`;}).join('')}</div>`;
+  }
+}
+
+function renderRank(who,s){
+  const el=document.getElementById('rank-body');
+  const sorted=[...RAW].sort((a,b)=>tot(b)-tot(a));
+  if(!s){
+    el.innerHTML=`<div style="overflow-y:auto;max-height:260px"><table class="tbl"><thead><tr><th style="width:22px">석차</th><th>이름</th><th style="width:36px">총점</th><th style="width:44px">백분위</th><th style="width:52px">상위</th></tr></thead><tbody>${sorted.map((r,i)=>{const t=tot(r),pct=parseFloat(((i+1)/28*100).toFixed(1));return`<tr><td style="font-weight:500">${i+1}</td><td>${r.n}. ${r.name}</td><td style="font-weight:500">${t}</td><td>${pct}%</td><td style="color:#1D9E75;font-size:10px">상위${parseFloat((100-pct+0.1).toFixed(1))}%</td></tr>`;}).join('')}</tbody></table></div>`;
+  } else {
+    const rank=sorted.findIndex(r=>r.name===s.name)+1;const pct=parseFloat((rank/28*100).toFixed(1));
+    el.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px">
+      <div class="metric"><p class="ml">반 내 석차</p><p class="mv">${rank}위</p><p class="ms">/ 28명</p></div>
+      <div class="metric"><p class="ml">백분위</p><p class="mv">${pct}%</p></div>
+      <div class="metric"><p class="ml">상위</p><p class="mv">${parseFloat((100-pct+0.1).toFixed(1))}%</p></div>
+    </div>
+    <table class="tbl"><thead><tr><th>과목</th><th>점수</th><th>등급</th><th>반 내 석차</th></tr></thead><tbody>
+    ${SK.map(([k,gk],i)=>{const g=s[gk],sr=[...RAW].sort((a,b)=>b[k]-a[k]).findIndex(r=>r.name===s.name)+1;return`<tr><td style="font-weight:500">${SN[i]}</td><td>${s[k]}</td><td><span class="gb" style="background:${GB[g]};color:${GC[g]}">${g}등급</span></td><td>${sr}위 / 28명</td></tr>`;}).join('')}
+    </tbody></table>`;
+  }
+}
+
+function renderWeak(who,s){
+  const el=document.getElementById('weak-body');
+  const ref=s?SK.map(([k])=>s[k]):avgs;
+  const overall=ref.reduce((a,b)=>a+b)/ref.length;
+  const items=SK.map(([k,gk],i)=>({name:SN[i],val:ref[i],diff:ref[i]-overall,grade:s?s[gk]:null})).sort((a,b)=>a.val-b.val);
+  el.innerHTML=items.map(({name,val,diff,grade})=>{
+    const isW=diff<-4,isS=diff>4;const col=isW?'#D85A30':isS?'#1D9E75':'#378ADD';
+    const lbl=isW?'취약':isS?'강점':'보통';const lc=isW?'#FAECE7':isS?'#E1F5EE':'#E6F1FB';const lt=isW?'#993C1D':isS?'#0F6E56':'#185FA5';
+    const gTag=grade?`<span class="gb" style="background:${GB[grade]};color:${GC[grade]}">${grade}등</span>`:'';
+    return`<div style="margin-bottom:7px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1px">
+      <div style="display:flex;align-items:center;gap:4px"><span style="font-size:11px;font-weight:500">${name}</span><span class="gb" style="background:${lc};color:${lt}">${lbl}</span>${gTag}</div>
+      <span style="font-size:11px;font-weight:500">${val.toFixed(0)}<span style="font-size:10px;color:${diff>=0?'#1D9E75':'#D85A30'};margin-left:3px">${diff>=0?'+':''}${diff.toFixed(1)}</span></span>
+    </div><div class="bar-bg"><div class="bar-fill" style="width:${Math.min(100,val)}%;background:${col}"></div></div></div>`;
+  }).join('');
+}
+
+function renderDist(){
+  dc('dist');
+  const gc=SK.map(([k,gk])=>{const c=new Array(9).fill(0);RAW.forEach(r=>{const g=r[gk];if(g>=1&&g<=9)c[g-1]++;});return c;});
+  ch['dist']=new Chart(document.getElementById('cDist'),{type:'bar',data:{labels:SN,datasets:[1,2,3,4,5,6,7,8,9].map((g,gi)=>({label:`${g}등급`,data:SK.map((_,si)=>gc[si][gi]),backgroundColor:GC[g]+'bb',borderColor:GC[g],borderWidth:0,stack:'a'}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:10}}},y:{stacked:true,grid:{color:'rgba(128,128,128,0.08)'},ticks:{stepSize:5,font:{size:9}}}}}});
+  document.getElementById('dist-legend').innerHTML=[1,2,3,4,5,6,7,8,9].map(g=>`<span style="display:flex;align-items:center;gap:3px;font-size:10px;color:var(--color-text-secondary)"><span style="width:8px;height:8px;border-radius:2px;background:${GC[g]}"></span>${g}등급</span>`).join('');
+}
+
+function renderList(who){
+  const top20=[...RAW].sort((a,b)=>a.t3-b.t3||tot(b)-tot(a)).slice(0,20);
+  const hl=who!=='all'?who:null;const medalColor=['#B8860B','#888780','#CD7F32'];
+  const rows=top20.map((r,i)=>{
+    const isMe=hl===r.name;
+    const rankCell=i<3?`<td><span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:${medalColor[i]};color:#fff;font-size:9px;font-weight:500">${i+1}</span></td>`:`<td style="font-weight:500;color:var(--color-text-secondary)">${i+1}</td>`;
+    return`<tr style="${isMe?'background:var(--color-background-info);':''}">${rankCell}<td style="text-align:left">${r.n}. ${r.name}</td><td style="font-weight:500;color:#185FA5">${r.t3}</td><td><span class="gb" style="background:${GB[r.kg]};color:${GC[r.kg]}">${r.k}(${r.kg})</span></td><td><span class="gb" style="background:${GB[r.mg]};color:${GC[r.mg]}">${r.m}(${r.mg})</span></td><td><span class="gb" style="background:${GB[r.eg]};color:${GC[r.eg]}">${r.e}(${r.eg})</span></td><td>${tot(r)}</td><td style="font-size:10px;color:var(--color-text-secondary)">${r.school}</td></tr>`;
+  }).join('');
+  let extraRow='';
+  if(hl&&!top20.find(r=>r.name===hl)){
+    const s=RAW.find(r=>r.name===hl);const myRank=[...RAW].sort((a,b)=>a.t3-b.t3||tot(b)-tot(a)).findIndex(r=>r.name===hl)+1;
+    extraRow=`<tr style="background:var(--color-background-info);border-top:1px dashed var(--color-border-secondary)"><td style="color:var(--color-text-secondary)">${myRank}</td><td style="text-align:left">${s.n}. ${s.name} <span style="font-size:9px;color:var(--color-text-tertiary)">(Top20 외)</span></td><td style="font-weight:500;color:#D85A30">${s.t3}</td><td><span class="gb" style="background:${GB[s.kg]};color:${GC[s.kg]}">${s.k}(${s.kg})</span></td><td><span class="gb" style="background:${GB[s.mg]};color:${GC[s.mg]}">${s.m}(${s.mg})</span></td><td><span class="gb" style="background:${GB[s.eg]};color:${GC[s.eg]}">${s.e}(${s.eg})</span></td><td>${tot(s)}</td><td style="font-size:10px;color:var(--color-text-secondary)">${s.school}</td></tr>`;
+  }
+  document.getElementById('list-body').innerHTML=`<table class="tbl"><colgroup><col style="width:26px"><col style="width:82px"><col style="width:38px"><col style="width:64px"><col style="width:64px"><col style="width:64px"><col style="width:38px"><col style="width:72px"></colgroup><thead><tr><th>순위</th><th>이름</th><th style="color:#185FA5">3합</th><th>국어</th><th>수학</th><th>영어</th><th>총점</th><th>출신중</th></tr></thead><tbody>${rows}${extraRow}</tbody></table><p style="font-size:10px;color:var(--color-text-tertiary);margin:6px 0 0">* 3합 동점 시 총점 높은 순 · 상위 20명 표시</p>`;
+}
+
+function renderOdap(who){
+  const el=document.getElementById('odap-body');
+  dc('odapDom');
+  if(who==='all'){
+    el.innerHTML=`<p style="font-size:11px;color:var(--color-text-secondary);text-align:center;padding:1.2rem 0">학생을 선택하면 개인 오답 분석 카드가 표시됩니다.</p>`;
+    return;
+  }
+  const s=RAW.find(r=>r.name===who);
+  const sMap={korean:{score:s.k,grade:s.kg,total:45,domains:KD,label:'국어'},math:{score:s.m,grade:s.mg,total:30,domains:MD,label:'수학'},english:{score:s.e,grade:s.eg,total:45,domains:ED,label:'영어'}};
+  const {score,grade,total,domains,label}=sMap[curSubj];
+  const seed=score*(curSubj==='korean'?7:curSubj==='math'?13:17);
+  const wrong=wrongNums(score,total,seed);
+  const correctCount=total-wrong.length;
+  const correctPct=parseFloat((correctCount/total*100).toFixed(1));
+
+  const qIdxToDom={};
+  domains.forEach((d,di)=>{d.items.forEach(n=>{qIdxToDom[n]=di;});});
+
+  const domBorderColors=['#378ADD','#1D9E75','#BA7517','#D85A30','#7F77DD','#D4537E','#534AB7','#0F6E56','#993C1D','#72243E','#444441'];
+
+  const qGrid=Array.from({length:total},(_,i)=>{
+    const n=i+1,isX=wrong.includes(n);const di=qIdxToDom[n];
+    const domColor=di!==undefined?domBorderColors[di%domBorderColors.length]:'#888780';
+    return`<div class="qcell ${isX?'wrong':'correct'}" title="${n}번 · ${domains[di]?.name||''} · ${isX?'오답':'정답'}" style="border-left:3px solid ${domColor}">${n}</div>`;
+  }).join('');
+
+  const domStats=domains.map((d,di)=>{
+    const wc=d.items.filter(n=>wrong.includes(n)).length;
+    const rate=parseFloat((wc/d.items.length*100).toFixed(0));
+    const color=domBorderColors[di%domBorderColors.length];
+    return{...d,wrongCount:wc,total:d.items.length,rate,color};
+  }).sort((a,b)=>b.rate-a.rate);
+
+  el.innerHTML=`
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding:10px 14px;background:var(--color-background-secondary);border-radius:var(--border-radius-md)">
+    <div style="display:flex;align-items:center;gap:14px">
+      <div>
+        <span style="font-size:11px;color:var(--color-text-secondary)">${label} · ${s.name}</span>
+        <div style="display:flex;align-items:baseline;gap:6px;margin-top:2px">
+          <span style="font-size:22px;font-weight:500">${score}</span>
+          <span style="font-size:11px;color:var(--color-text-tertiary)">점</span>
+          <span class="gb" style="background:${GB[grade]};color:${GC[grade]};margin-left:4px">${grade}등급</span>
+        </div>
+      </div>
+      <div style="border-left:0.5px solid var(--color-border-secondary);padding-left:14px">
+        <span style="font-size:11px;color:var(--color-text-secondary)">정답률</span>
+        <div style="display:flex;align-items:baseline;gap:4px;margin-top:2px">
+          <span style="font-size:18px;font-weight:500;color:#0F6E56">${correctPct}%</span>
+          <span style="font-size:10px;color:var(--color-text-tertiary)">${correctCount}/${total}</span>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:right">
+      <span style="font-size:11px;color:var(--color-text-secondary)">오답</span>
+      <div style="font-size:18px;font-weight:500;color:#A32D2D">${wrong.length}<span style="font-size:11px;font-weight:400;color:var(--color-text-tertiary)">문항</span></div>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:14px;margin:0 0 16px;padding:8px 14px;background:var(--color-background-primary);border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary)">
+    <div style="flex:1;height:16px;background:var(--color-background-secondary);border-radius:8px;overflow:hidden;display:flex">
+      <div style="height:100%;background:#5DCAA5;width:${correctPct}%"></div>
+      <div style="height:100%;background:#F09595;width:${100-correctPct}%"></div>
+    </div>
+    <span style="font-size:11px;color:var(--color-text-secondary)">정답 <b style="color:#0F6E56">${correctCount}</b> · 오답 <b style="color:#A32D2D">${wrong.length}</b></span>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:14px;margin-bottom:14px">
+
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <p style="font-size:12px;font-weight:500;margin:0">문항별 O/X 히트맵</p>
+        <div class="legend-row">
+          <span class="legend-chip"><span class="legend-sq" style="background:#E1F5EE;border:0.5px solid #9FE1CB"></span>정답</span>
+          <span class="legend-chip"><span class="legend-sq" style="background:#FCEBEB;border:0.5px solid #F09595"></span>오답</span>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(15,1fr);gap:3px">${qGrid}</div>
+      <p style="font-size:9px;color:var(--color-text-tertiary);margin:7px 0 0">* 왼쪽 색 막대는 출제 영역 · 마우스를 올리면 문항 상세</p>
+      ${wrong.length>0?`<div style="margin-top:10px;padding:7px 10px;background:#FCEBEB;border-radius:var(--border-radius-md);border-left:2px solid #A32D2D">
+        <span style="font-size:10px;color:#993C1D">오답 문항:</span>
+        <span style="font-size:11px;color:#501313;font-weight:500;margin-left:4px">${wrong.join(', ')}번</span>
+      </div>`:''}
+    </div>
+
+    <div>
+      <p style="font-size:12px;font-weight:500;margin:0 0 8px">영역별 오답 집중도</p>
+      <div style="position:relative;height:${domains.length*26+20}px"><canvas id="cOdapDom" role="img" aria-label="영역별 오답율 가로 막대 차트">영역별 오답율</canvas></div>
+    </div>
+
+  </div>
+
+  <div>
+    <p style="font-size:12px;font-weight:500;margin:0 0 8px">영역별 상세 분석</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:7px">
+      ${domStats.map(d=>{
+        const severity=d.rate===0?'safe':d.rate<=25?'low':d.rate<=50?'mid':'high';
+        const sColor={safe:'#1D9E75',low:'#639922',mid:'#BA7517',high:'#A32D2D'}[severity];
+        const sBg={safe:'#E1F5EE',low:'#EAF3DE',mid:'#FAEEDA',high:'#FCEBEB'}[severity];
+        const sLabel={safe:'우수',low:'양호',mid:'주의',high:'집중보완'}[severity];
+        return`<div class="dom-card" style="border-left:3px solid ${d.color}">
+          <div class="dom-bar" style="background:${d.color};width:${d.rate}%"></div>
+          <div class="dom-content">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+              <span style="font-size:11px;font-weight:500">${d.name}</span>
+              <span class="gb" style="background:${sBg};color:${sColor}">${sLabel}</span>
+            </div>
+            <div style="display:flex;align-items:baseline;gap:4px">
+              <span style="font-size:16px;font-weight:500;color:${sColor}">${d.wrongCount}</span>
+              <span style="font-size:10px;color:var(--color-text-secondary)">/ ${d.total}문항</span>
+              <span style="font-size:10px;color:var(--color-text-tertiary);margin-left:auto">오답율 ${d.rate}%</span>
+            </div>
+            <p style="font-size:9px;color:var(--color-text-tertiary);margin:3px 0 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">문항 ${d.items.join(', ')}</p>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>
+
+  <div style="margin-top:12px;padding-top:10px;border-top:0.5px solid var(--color-border-tertiary)">
+    <p style="font-size:11px;color:var(--color-text-secondary);margin:0 0 6px">모의고사 추이 (국어 / 수학 / 영어)</p>
+    <table class="tbl"><thead><tr><th>회차</th><th>국어</th><th>수학</th><th>영어</th><th>국어등급</th><th>수학등급</th><th>영어등급</th></tr></thead><tbody>
+      <tr><td style="font-weight:500">3월</td><td>${s.k}</td><td>${s.m}</td><td>${s.e}</td><td><span class="gb" style="background:${GB[s.kg]};color:${GC[s.kg]}">${s.kg}</span></td><td><span class="gb" style="background:${GB[s.mg]};color:${GC[s.mg]}">${s.mg}</span></td><td><span class="gb" style="background:${GB[s.eg]};color:${GC[s.eg]}">${s.eg}</span></td></tr>
+      <tr><td style="color:var(--color-text-tertiary)">6월</td><td colspan="6" style="color:var(--color-text-tertiary);font-size:10px;text-align:left">— 데이터 없음</td></tr>
+      <tr><td style="color:var(--color-text-tertiary)">9월</td><td colspan="6" style="color:var(--color-text-tertiary);font-size:10px;text-align:left">— 데이터 없음</td></tr>
+      <tr><td style="color:var(--color-text-tertiary)">10월</td><td colspan="6" style="color:var(--color-text-tertiary);font-size:10px;text-align:left">— 데이터 없음</td></tr>
+    </tbody></table>
+  </div>`;
+
+  const ctx=document.getElementById('cOdapDom');
+  if(ctx){
+    ch['odapDom']=new Chart(ctx,{type:'bar',data:{labels:domStats.map(d=>d.name),datasets:[{label:'오답율',data:domStats.map(d=>d.rate),backgroundColor:domStats.map(d=>{
+      const r=d.rate;return r===0?'#9FE1CB':r<=25?'#C0DD97':r<=50?'#FAC775':'#F09595';
+    }),borderColor:domStats.map(d=>{
+      const r=d.rate;return r===0?'#1D9E75':r<=25?'#639922':r<=50?'#BA7517':'#A32D2D';
+    }),borderWidth:1,borderRadius:3,barThickness:18}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:(c)=>{const d=domStats[c.dataIndex];return `오답 ${d.wrongCount}/${d.total}문항 (${d.rate}%)`;}}}},scales:{x:{min:0,max:100,grid:{color:'rgba(128,128,128,0.1)'},ticks:{font:{size:9},callback:v=>v+'%'}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+  }
+}
+
+renderAll();
+</script>
+</body>
+</html>
